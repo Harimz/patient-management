@@ -45,4 +45,17 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(PatientNotFoundException.class)
+    public ResponseEntity<ApiErrorResponseDTO> handlePatientNotFoundException(PatientNotFoundException ex) {
+        log.warn("Patient not found: {}", ex.getMessage());
+
+        ApiErrorResponseDTO error = ApiErrorResponseDTO
+                .builder()
+                .message(ex.getMessage())
+                .status(HttpStatus.NOT_FOUND.value())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
 }

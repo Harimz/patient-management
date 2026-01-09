@@ -34,7 +34,6 @@ public class PatientResponseDTO {
     private String country;
 
     private String dateOfBirth;
-    private String registeredDate;
     private String createdAt;
     private String updatedAt;
 

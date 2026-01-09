@@ -16,7 +16,6 @@ public interface PatientMapper {
     @Mapping(target = "gender", expression = "java(patient.getGender().name())")
     @Mapping(target = "status", expression = "java(patient.getStatus().name())")
     @Mapping(target = "dateOfBirth", expression = "java(toString(patient.getDateOfBirth()))")
-    @Mapping(target = "registeredDate", expression = "java(toString(patient.getRegisteredDate()))")
     @Mapping(target = "createdAt", expression = "java(toString(patient.getCreatedAt()))")
     @Mapping(target = "updatedAt", expression = "java(toString(patient.getUpdatedAt()))")
     PatientResponseDTO toDTO(Patient patient);
