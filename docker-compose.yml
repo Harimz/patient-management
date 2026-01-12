@@ -13,23 +13,28 @@ services:
     ports:
       - "5000:5432"
 
-  patient-service:
-    build:
-      context: ./patient-service
-      dockerfile: Dockerfile
-    container_name: patient-service
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://patient-service-db:5432/db
-      SPRING_DATASOURCE_USERNAME: admin_user
-      SPRING_DATASOURCE_PASSWORD: password
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_SQL_INIT_MODE: always
-    depends_on:
-      - patient-service-db
+  kafka:
+    image: apache/kafka:latest
+    container_name: kafka
     networks:
       - internal
     ports:
-      - "4000:4000"
+      - "9092:9092"
+      - "9094:9094"
+    environment:
+      KAFKA_NODE_ID: "0"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "0@kafka:9093"
+
+      KAFKA_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
 
   billing-service:
     build:
@@ -41,6 +46,32 @@ services:
     ports:
       - "4001:4001"
       - "9001:9001"
+    depends_on:
+      - kafka
+
+  patient-service:
+    build:
+      context: ./patient-service
+      dockerfile: Dockerfile
+    container_name: patient-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://patient-service-db:5432/db
+      SPRING_DATASOURCE_USERNAME: admin_user
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_SQL_INIT_MODE: always
+      BILLING_SERVICE_ADDRESS: billing-service
+      BILLING_SERVICE_GRPC_PORT: 9001
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+    depends_on:
+      - patient-service-db
+      - billing-service
+      - kafka
+    networks:
+      - internal
+    ports:
+      - "4000:4000"
 
 networks:
   internal:

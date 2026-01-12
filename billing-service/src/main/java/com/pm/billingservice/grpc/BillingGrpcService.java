@@ -4,16 +4,13 @@ import billing.BillingRequest;
 import billing.BillingResponse;
 import billing.BillingServiceGrpc.BillingServiceImplBase;
 import io.grpc.stub.StreamObserver;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 
+@Slf4j
 @GrpcService
 public class BillingGrpcService extends BillingServiceImplBase {
-
-    private static final Log log = LogFactory.getLog(BillingGrpcService.class);
-
     @Override
     public void createBillingAccount(
             BillingRequest billingRequest,
@@ -26,6 +23,8 @@ public class BillingGrpcService extends BillingServiceImplBase {
                 .setAccountId("1234")
                 .setStatus("ACTIVE")
                 .build();
+
+        log.info("Created billing account response");
 
         responseObserver.onNext(response);
         responseObserver.onCompleted();

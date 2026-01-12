@@ -3,13 +3,13 @@ POST http://localhost:4000/api/v1/patients
 Content-Type: application/json
 
 {
-  "firstName": "John",
-  "lastName": "Doe",
+  "firstName": "Harim",
+  "lastName": "Zermeno",
   "gender": "MALE",
   "preferredLanguage": "en",
 
-  "email": "johndoe@example.com",
-  "phoneNumber": "+15551234567",
+  "email": "harim2@example.com",
+  "phoneNumber": "+15559234567",
 
   "addressLine1": "123 Main St",
   "addressLine2": "Apt 4B",
