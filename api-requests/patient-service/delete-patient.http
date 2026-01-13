@@ -1,4 +1,4 @@
 ### DELETE an entity
-DELETE http://localhost:4000/api/v1/patients/4fe4c6b5-8598-482e-988a-cab7d6896c7b
+DELETE http://localhost:4000/api/v1/patients/cd9cc832-7d3f-496e-9b41-88cc795e9ef0
 
 ###
