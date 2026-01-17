@@ -19,6 +19,8 @@ public class AuthUserDetails implements UserDetails {
 
     public UserRole getRole() { return user.getRole(); }
     public User getUser() { return user; }
+    public String getFirstName() { return user.getFirstName(); };
+    public String getLastName() { return user.getLastName(); };
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

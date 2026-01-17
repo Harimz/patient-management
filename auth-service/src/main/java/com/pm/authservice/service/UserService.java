@@ -2,6 +2,7 @@ package com.pm.authservice.service;
 
 import com.pm.authservice.dto.RegisterUserRequestDTO;
 import com.pm.authservice.exceptions.UserAlreadyExistsException;
+import com.pm.authservice.exceptions.UserNotFoundException;
 import com.pm.authservice.model.User;
 import com.pm.authservice.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -23,8 +24,8 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public Optional<User> findById(UUID id) {
-        return userRepository.findById(id);
+    public User findById(UUID id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id.toString()));
     }
 
     @Transactional

@@ -77,6 +77,7 @@ services:
       BILLING_SERVICE_ADDRESS: billing-service
       BILLING_SERVICE_GRPC_PORT: 9001
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      JWT_SECRET: dev-dev-dev-dev-dev-dev-dev-dev-dev-dev-dev-dev
 
     depends_on:
       - patient-service-db
@@ -111,6 +112,7 @@ services:
       SPRING_DATASOURCE_USERNAME: admin_user
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_SQL_INIT_MODE: always
+      JWT_SECRET: dev-dev-dev-dev-dev-dev-dev-dev-dev-dev-dev-dev
 
     depends_on:
       - auth-service-db
@@ -125,6 +127,8 @@ services:
       dockerfile: Dockerfile
     container_name: api-gateway
 
+    environment:
+      JWT_SECRET: dev-dev-dev-dev-dev-dev-dev-dev-dev-dev-dev-dev
     depends_on:
       - patient-service
     networks:

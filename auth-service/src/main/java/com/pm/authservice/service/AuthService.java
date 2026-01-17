@@ -4,6 +4,7 @@ import com.pm.authservice.model.RefreshToken;
 import com.pm.authservice.model.User;
 import com.pm.authservice.repository.RefreshTokenRepository;
 import com.pm.authservice.security.AuthUserDetails;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -11,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -50,14 +50,15 @@ public class AuthService {
 
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public UserDetails authenticate(String email, String password) {
+    public AuthUserDetails authenticate(String email, String password) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
         return authUserDetailsService.loadUserByUsername(email);
     }
 
-    public String generateAccessToken(UserDetails user) {
+    public String generateAccessToken(AuthUserDetails user) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId().toString());
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -66,6 +67,12 @@ public class AuthService {
                 .setExpiration(new Date(System.currentTimeMillis() + accessExpiryMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public AuthUserDetails validateAccessToken(String token) {
+        String username = extractUsername(token);
+
+        return authUserDetailsService.loadUserByUsername(username);
     }
 
     public String issueOrReplaceRefreshToken(AuthUserDetails user) {
@@ -105,10 +112,9 @@ public class AuthService {
             throw new RuntimeException("Refresh token expired");
         }
 
-        User user = userService.findById(existing.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userService.findById(existing.getUserId());
 
-        UserDetails userDetails = authUserDetailsService.loadUserByUsername(user.getEmail());
+        AuthUserDetails userDetails = authUserDetailsService.loadUserByUsername(user.getEmail());
 
         String newRaw = newRefreshToken();
         existing.setTokenHash(sha256Hex(newRaw + refreshPepper));
@@ -120,10 +126,27 @@ public class AuthService {
         return new RefreshResult(newAccess, accessExpiryMs / 1000, newRaw);
     }
 
+    public void logout(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) return;
+
+        String hash = sha256Hex(refreshToken + refreshPepper);
+        refreshTokenRepository.findByTokenHash(hash).ifPresent(rt -> refreshTokenRepository.deleteById(rt.getId()));
+    }
+
     // Helpers
 
+    private String extractUsername(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
+    }
+
     private Key getSigningKey() {
-        byte[] keyBytes =  secretKey.getBytes();
+        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
 
         return Keys.hmacShaKeyFor(keyBytes);
     }

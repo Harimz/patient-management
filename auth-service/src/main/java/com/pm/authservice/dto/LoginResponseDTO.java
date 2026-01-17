@@ -1,13 +1,11 @@
 package com.pm.authservice.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 @Data
-@RequiredArgsConstructor
-@Setter
+@AllArgsConstructor
 @Builder
 public class LoginResponseDTO {
 
