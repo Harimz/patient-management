@@ -1,3 +1,7 @@
+
+x-env: &common-env
+  JWT_SECRET: dev-dev-dev-dev-dev-dev-dev-dev-dev-dev-dev-dev
+
 services:
   patient-service-db:
     image: postgres:latest
@@ -112,14 +116,12 @@ services:
       SPRING_DATASOURCE_USERNAME: admin_user
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_SQL_INIT_MODE: always
-      JWT_SECRET: dev-dev-dev-dev-dev-dev-dev-dev-dev-dev-dev-dev
+      <<: *common-env
 
     depends_on:
       - auth-service-db
     networks:
       - internal
-    expose:
-      - "4005"
 
   api-gateway:
     build:
@@ -128,7 +130,8 @@ services:
     container_name: api-gateway
 
     environment:
-      JWT_SECRET: dev-dev-dev-dev-dev-dev-dev-dev-dev-dev-dev-dev
+      <<: *common-env
+      AUTH_SERVICE_URL: http://auth-service:4005
     depends_on:
       - patient-service
     networks:

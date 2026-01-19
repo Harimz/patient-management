@@ -1,5 +1,6 @@
 package com.pm.apigateway.config;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableReactiveMethodSecurity
 public class SecurityConfig {
 
-    @Value("${jwt.secret")
+    @Value("${jwt.secret}")
     private String jwtSecret;
 
     @Bean
@@ -49,9 +50,14 @@ public class SecurityConfig {
 
     @Bean
     public ReactiveJwtDecoder jwtDecoder() {
-        byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+        byte[] keyBytes = jwtSecret.trim().getBytes(StandardCharsets.UTF_8);
         SecretKeySpec key = new SecretKeySpec(keyBytes, "HmacSHA256");
 
         return NimbusReactiveJwtDecoder.withSecretKey(key).build();
+    }
+
+    @PostConstruct
+    public void logKeyLen() {
+        System.out.println("JWT secret length = " + (jwtSecret == null ? "null" : jwtSecret.trim().length()));
     }
 }

@@ -63,6 +63,7 @@ public class AuthController {
         return ResponseEntity.ok(loginResponse);
     }
 
+    @Operation(summary = "Refresh token")
     @PostMapping(path = "/refresh")
     public ResponseEntity<LoginResponseDTO> refresh(
             @CookieValue(name = "${app.cookies.refreshName:refresh_token}", required = false) String refreshToken,
@@ -84,7 +85,7 @@ public class AuthController {
         return ResponseEntity.ok(loginResponse);
     }
 
-    @Operation(summary = "Create a user entity")
+    @Operation(summary = "Create a user")
     @PostMapping(path = "/register")
     public ResponseEntity<RegisterUserResponseDTO> registerUser(@Valid @RequestBody RegisterUserRequestDTO registerUserRequestDTO) {
         User user = userService.createUser(registerUserRequestDTO);
